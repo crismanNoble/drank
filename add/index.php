@@ -7,7 +7,8 @@ header("Access-Control-Allow-Origin: *");
 INCLUDE "../config/db_connection.php";
 
 //grab data posted
-$drink = $_POST['drinkType'];
+$drink = $_POST['drink'];
+$name = $_POST['name'];
 
 //do the insert
 $sql = "INSERT INTO `noblei6_qs`.`drank`(`drink`) VALUES ('$drink')";
@@ -15,8 +16,5 @@ mysql_query($sql);
 
 //close the link to the db
 mysql_close($link);
-
-echo $drink;
-echo "hi";
 
 ?>
