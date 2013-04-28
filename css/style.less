@@ -1,0 +1,45 @@
+@water: #3C759D;
+@coffee: #BC8744;
+
+
+
+body {
+	padding: 0;
+	margin: 0;
+	height: 100%;
+	width: 100%;	
+}
+
+.item {
+	position: absolute;
+	height: 50%;
+	width: 100%;
+}
+
+#water {
+	top: 0;
+	left: 0;
+	background: @water;
+
+}
+
+#coffee {
+	top: 50%;
+	left: 0;
+	background: @coffee;
+}
+
+svg {
+	position: absolute;
+    fill: #f7f7f7;
+    height: 50%;
+    width: 50%;
+    top: 25%;
+    left: 25%;
+    transition:fill .2s;
+}
+
+svg:hover {
+    fill: #d1d1d1;
+}
+
