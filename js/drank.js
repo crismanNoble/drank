@@ -5,6 +5,7 @@ $(function(){
 	});
 
 	$('.item').click(function(){
+		getStats($(this).attr('id'));
 		showStats($(this));
 	});
 
@@ -29,11 +30,16 @@ function showStats(drink){
 
 function getStats(drinkType){
 	$('#'+drinkType).find('.total').hide();
-	$.post("/drank/get/", {'drink': drinkType})
-	.done(function(data){
+	$.ajax({
+		type:'POST',
+		url: "/drank/get/",
+		data: {'drink': drinkType}
+	}).done(function(data){
 		console.log(data);
-		$('#'+drinkType).find('.total').text(data);
+		data = $.parseJSON(data);
+		$('#'+drinkType).find('.total').text(data.total);
 		$('#'+drinkType).find('.total').fadeIn();
 	});
+
 	return false;
 }
