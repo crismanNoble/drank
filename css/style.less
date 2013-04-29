@@ -1,7 +1,10 @@
 @water: #3C759D;
 @coffee: #BC8744;
+@smoothie: rgb(98, 139, 98);
+@beer: rgb(109, 97, 37);
 
-
+@whiteish: #f7f7f7;
+@darker: #d1d1d1;
 
 body {
 	padding: 0;
@@ -12,34 +15,87 @@ body {
 
 .item {
 	position: absolute;
-	height: 50%;
+	height: 25%;
 	width: 100%;
+	left: 0;
 }
 
 #water {
 	top: 0;
-	left: 0;
 	background: @water;
 
+	.svgWrap, .itemStats {
+		background: @water;
+	}
 }
 
 #coffee {
-	top: 50%;
-	left: 0;
+	top: 25%;
 	background: @coffee;
+
+	.svgWrap, .itemStats {
+		background: @coffee;
+	}
+}
+
+#smoothie {
+	top: 50%;
+	background: @smoothie;
+
+	.svgWrap, .itemStats {
+		background: @smoothie;
+	}
+}
+
+#beer {
+	top: 75%;
+	background: @beer;
+
+	.svgWrap, .itemStats {
+		background: @beer;
+	}
 }
 
 svg {
 	position: absolute;
-    fill: #f7f7f7;
+    fill: @whiteish;
     height: 50%;
     width: 50%;
     top: 25%;
     left: 25%;
-    transition:fill .2s;
+    transition: fill .2s;
+
 }
 
 svg:hover {
-    fill: #d1d1d1;
+    fill: @darker;
+}
+
+.svgWrap {
+    z-index: 10;
+}
+
+.svgWrap, .itemStats {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	top: 0;
+	left: 0;
+}
+
+.itemStats {
+	color: @whiteish;
+	font-family: Futura, 'Century Gothic', AppleGothic, sans-serif;
+	text-align: center;
+
+	.itemTitle {
+		font-size: 20px;
+		padding-top: 10px;
+	}
+
+	p {
+		margin: 0;
+	}
+
 }
 
