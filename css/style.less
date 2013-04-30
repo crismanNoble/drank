@@ -3,56 +3,68 @@
 @smoothie: rgb(98, 139, 98);
 @beer: rgb(109, 97, 37);
 
-@whiteish: #f7f7f7;
-@darker: #d1d1d1;
+@base: #2D4F73;
+@lighter1: lighten(@base, 5%);
+@lighter2: lighten(@lighter1, 5%);
+@lighter3: lighten(@lighter2, 5%);
+@greyish: #535F68;
 
-body {
+@whiteish: #f7f7f7;
+@darker: darken(@whiteish, 10%);
+
+html, body {
 	padding: 0;
 	margin: 0;
+	min-height: 100%;
+	width: 100%;	
+}
+
+#wrap {
+	position: absolute;
+	top: 0;
+	left: 0;
 	height: 100%;
 	width: 100%;	
 }
 
 .item {
-	position: absolute;
+	position: relative;
 	height: 25%;
 	width: 100%;
-	left: 0;
 }
 
 #water {
-	top: 0;
-	background: @water;
-
 	.svgWrap, .itemStats {
-		background: @water;
+		background: @base;
 	}
 }
 
 #coffee {
-	top: 25%;
-	background: @coffee;
-
 	.svgWrap, .itemStats {
-		background: @coffee;
-	}
-}
-
-#smoothie {
-	top: 50%;
-	background: @smoothie;
-
-	.svgWrap, .itemStats {
-		background: @smoothie;
+		background: @lighter1;
 	}
 }
 
 #beer {
-	top: 75%;
-	background: @beer;
-
 	.svgWrap, .itemStats {
-		background: @beer;
+		background: @lighter2;
+	}
+}
+
+#info {
+	.svgWrap, .itemStats {
+		background: lighten(@greyish,5%);
+	}
+	svg {
+		height: 40%;
+		top: 30%;
+
+	}
+}
+
+#smoothie {
+	.svgWrap, .itemStats {
+		background: @lighter3;
 	}
 }
 
@@ -69,6 +81,7 @@ svg {
 
 svg:hover {
     fill: @darker;
+    cursor: pointer;
 }
 
 .svgWrap {

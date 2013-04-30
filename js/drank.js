@@ -29,7 +29,7 @@ function showStats(drink){
 }
 
 function getStats(drinkType){
-	$('#'+drinkType).find('.total').hide();
+	//$('#'+drinkType).find('.total').hide();
 	$.ajax({
 		type:'POST',
 		url: "/drank/get/",
@@ -38,7 +38,8 @@ function getStats(drinkType){
 		console.log(data);
 		data = $.parseJSON(data);
 		$('#'+drinkType).find('.total').text(data.total);
-		$('#'+drinkType).find('.total').fadeIn();
+		$('#'+drinkType).find('.today').text(data.daily);
+		//$('#'+drinkType).find('.total').fadeIn();
 	});
 
 	return false;
