@@ -53,12 +53,16 @@ html, body {
 
 #info {
 	.svgWrap, .itemStats {
-		background: lighten(@greyish,5%);
+		background: lighten(@greyish,50%);
+		color: @lighter3;
 	}
 	svg {
 		height: 40%;
 		top: 30%;
-
+		fill: @lighter3;
+	}
+	svg:hover {
+		fill: @lighter2;
 	}
 }
 
@@ -76,7 +80,6 @@ svg {
     top: 25%;
     left: 25%;
     transition: fill .2s;
-
 }
 
 svg:hover {
