@@ -2,7 +2,7 @@ $(function(){
 
 	$('#logout').hide();
 
-	$('svg').click(function(e){
+	$('.drink').click(function(e){
 		e.stopPropagation();
 		logDrink($(this).parent().parent());
 	});
@@ -25,6 +25,10 @@ $(function(){
 		eraseCookie('s');
 		$('#logout').hide();
 	});
+
+	if(readCookie('s')){
+		$('#logout').show();
+	}
 	
 
 });
