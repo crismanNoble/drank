@@ -2,6 +2,8 @@ $(function(){
 
 	$('#logout').hide();
 
+	drawChart();
+
 	$('.drink').click(function(e){
 		e.stopPropagation();
 		logDrink($(this).parent().parent());
@@ -100,4 +102,42 @@ function readCookie(name) {
 
 function eraseCookie(name) {
 	createCookie(name,"",-1);
+}
+
+function drawChart(element) {
+	var data = [5,6,7,8,2];
+
+	var max = d3.max(data);
+
+	var barWidth = (100/data.length) + '%';
+
+	var yScale = d3.scale.linear()
+		.domain([0,max])
+		.range([100,0]);
+
+	//not sure i need this one
+	var xScale = d3.scale.linear()
+		.domain([0,5])
+		.range([0,'100%']);
+
+
+	var svg = d3.select('.itemStats').append('svg');
+
+	svg.attr('class','chart');
+
+	svg.selectAll('rect')
+		.data(data)
+		.enter()
+		.append('rect')
+		.attr('x',function(d,i){
+			return xScale(i);
+		})
+		.attr('y',function(d){
+			return 100 - yScale(d) + '%';
+		})
+		.attr('height',function(d){
+			return yScale(d) + '%';
+		})
+		.attr('width',barWidth)
+		.attr('fill','white');
 }
