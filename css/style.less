@@ -1,3 +1,12 @@
+/*MIXINS*/
+.transition (@property, @duration) {
+	-moz-transition: @property @duration;
+	-webkit-transition: @property @duration;
+	-o-transition: @property @duration;
+	transition: @property @duration;
+}
+
+/*CONSTANTS*/
 @water: #3C759D;
 @coffee: #BC8744;
 @smoothie: rgb(98, 139, 98);
@@ -29,37 +38,41 @@ html, body {
 
 .item {
 	position: relative;
-	height: 25%;
+	height: 20%;
 	width: 100%;
+	overflow: hidden;
 }
 
 #water {
-	.svgWrap, .itemStats {
+	.svgWrap {
 		background: @base;
 	}
 }
 
 #coffee {
-	.svgWrap, .itemStats {
+	.svgWrap {
 		background: @lighter1;
 	}
 }
 
 #beer {
-	.svgWrap, .itemStats {
+	.svgWrap {
 		background: @lighter2;
 	}
 }
 
 #info {
-	.svgWrap, .itemStats {
+	.svgWrap {
 		background: lighten(@greyish,50%);
 		color: @lighter3;
 	}
 	svg {
-		height: 40%;
-		top: 30%;
 		fill: @lighter3;
+	    height: 50%;
+	    width: 50%;
+	    top: 25%;
+	    left: 25%;
+	    position: absolute;
 	}
 	svg:hover {
 		fill: @lighter2;
@@ -67,7 +80,7 @@ html, body {
 }
 
 #smoothie {
-	.svgWrap, .itemStats {
+	.svgWrap {
 		background: @lighter3;
 	}
 }
@@ -108,7 +121,8 @@ svg.chart {
 }
 
 .itemStats {
-	color: @whiteish;
+	background: lighten(@greyish,30%);
+	color: @water;
 	font-family: Futura, 'Century Gothic', AppleGothic, sans-serif;
 	text-align: center;
 
@@ -121,5 +135,10 @@ svg.chart {
 		margin: 0;
 	}
 
+	&.plusOne {
+		background: lighten(@greyish,60%);
+	}
+
+	.transition(background, .2s);
 }
 

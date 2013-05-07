@@ -4,15 +4,15 @@ $(function(){
 
 	drawChart();
 
-	$('.drink').click(function(e){
-		e.stopPropagation();
-		logDrink($(this).parent().parent());
-	});
+	// $('.drink').click(function(e){
+	// 	e.stopPropagation();
+	// 	logDrink($(this).parent().parent());
+	// });
 
-	$('.item').click(function(){
-		getStats($(this).attr('id'));
-		showStats($(this));
-	});
+	// $('.item').click(function(){
+	// 	getStats($(this).attr('id'));
+	// 	showStats($(this));
+	// });
 
 	$('.item').each(function(){
 		getStats($(this).attr('id'));
@@ -31,6 +31,35 @@ $(function(){
 	if(readCookie('s')){
 		$('#logout').show();
 	}
+
+	$('.svgWrap').on('dragmove', function(ev, drag) {
+  		drag.horizontal();
+    	var dist = drag.location[0];
+    	var parentDiv = $(this).parent();
+    	var rightSwipe = drag.location[0] > 0;
+	    if(Math.abs(dist) > 100){
+	        parentDiv.find('.itemStats').addClass('plusOne');
+	    } else {
+	    	parentDiv.find('.itemStats').removeClass('plusOne');	
+	    }
+	}).on('draginit',function(){
+		console.log('started a drag');
+	}).on('dragend',function(ev, drag){
+    	var dist = drag.location[0];
+    	var rightSwipe = drag.location[0] > 0;
+    	console.log(dist);
+	    if(Math.abs(dist) > 100){
+	        console.log('threshold past');
+	        if(rightSwipe) {
+	            $(this).animate({left:'100%'},500).delay(3000).animate({left:'0%'},500);
+	            logDrink($(this).parent());    
+	        } else {
+	            $(this).animate({left:'-100%'},500).delay(3000).animate({left:'0%'},500);;
+	        }
+	    } else {
+	        $(this).animate({left:0},500);
+	    }
+	});
 	
 
 });
@@ -46,15 +75,12 @@ function logDrink(drink){
 		}).done(function(data){
 			console.log(data);
 			getStats(drinkType);
-			showStats(drink);
 		});
-	} else {
-		showStats(drink);
 	}
 }
 
 function showStats(drink){
-	drink.find('.svgWrap').fadeOut(500).delay(3000).fadeIn(500);
+	drink.find('.svgWrap').animate({left:'100%'}).delay(3000).animate({left:'0%'});
 }
 
 function getStats(drinkType){
