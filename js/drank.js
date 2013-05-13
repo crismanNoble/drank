@@ -2,7 +2,7 @@ $(function(){
 
 	$('#logout').hide();
 
-	drawChart();
+	
 
 	// $('.drink').click(function(e){
 	// 	e.stopPropagation();
@@ -15,7 +15,9 @@ $(function(){
 	// });
 
 	$('.item').each(function(){
-		getStats($(this).attr('id'));
+		var itemID = $(this).attr('id')
+		getStats(itemID);
+		drawChart(itemID);
 	});
 
 	if(document.location.hash == '#a'){
@@ -42,23 +44,23 @@ $(function(){
 	    } else {
 	    	parentDiv.find('.itemStats').removeClass('plusOne');	
 	    }
-	}).on('draginit',function(){
-		console.log('started a drag');
-	}).on('dragend',function(ev, drag){
-    	var dist = drag.location[0];
-    	var rightSwipe = drag.location[0] > 0;
-    	console.log(dist);
-	    if(Math.abs(dist) > 100){
-	        console.log('threshold past');
-	        if(rightSwipe) {
-	            $(this).animate({left:'100%'},500).delay(3000).animate({left:'0%'},500);
-	            logDrink($(this).parent());    
-	        } else {
-	            $(this).animate({left:'-100%'},500).delay(3000).animate({left:'0%'},500);;
-	        }
-	    } else {
-	        $(this).animate({left:0},500);
-	    }
+		}).on('draginit',function(){
+			console.log('started a drag');
+		}).on('dragend',function(ev, drag){
+	    	var dist = drag.location[0];
+	    	var rightSwipe = drag.location[0] > 0;
+	    	console.log(dist);
+		    if(Math.abs(dist) > 100){
+		        console.log('threshold past');
+		        if(rightSwipe) {
+		            $(this).animate({left:'100%'},500).delay(3000).animate({left:'0%'},500);
+		            logDrink($(this).parent());    
+		        } else {
+		            $(this).animate({left:'-100%'},500).delay(3000).animate({left:'0%'},500);;
+		        }
+		    } else {
+		        $(this).animate({left:0},500);
+		    }
 	});
 	
 
@@ -92,12 +94,32 @@ function getStats(drinkType){
 	}).done(function(data){
 		//console.log(data);
 		data = $.parseJSON(data);
+		//console.log(data.allData);
 		$('#'+drinkType).find('.total').text(data.total);
 		$('#'+drinkType).find('.today').text(data.daily);
 		//$('#'+drinkType).find('.total').fadeIn();
 	});
 
 	return false;
+}
+
+function returnStats(drinkType){
+	var returnData;
+	console.log(drinkType);
+	$.ajax({
+		type:'POST',
+		url: "/drank/get/",
+		data: {'drink': drinkType},
+		async: false
+	}).done(function(data){
+		data = $.parseJSON(data);
+		returnData = data.allData;
+	});
+
+	console.log('RETURN DATA//');
+	console.log(returnData);
+
+	return returnData;
 }
 
 /*
@@ -130,8 +152,79 @@ function eraseCookie(name) {
 	createCookie(name,"",-1);
 }
 
-function drawChart(element) {
-	var data = [5,6,7,8,2];
+function addDailyTotals(itemID){
+
+}
+function getLastWeek(){
+    var today = new Date();
+    var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6);
+    return lastWeek;
+}
+var lastWeekTS = getLastWeek().getTime();
+
+function oneWeekDates(){
+	var newObj = {};
+	for (var i=0; i<7; i++){
+		var today = new Date();
+		var thisDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (6-i));
+		var da = thisDate.getDate();
+		if (da < 10){
+			da = '0' + da;
+		}
+		var mo = thisDate.getMonth() + 1;
+		if (mo < 10){
+			mo = '0' + mo;
+		}
+		newObj[(mo+'/'+da)] = 0;	
+	}
+	return newObj;
+}
+
+function oneWeekDateArray(){
+	var newObj = [];
+	for (var i=0; i<7; i++){
+		var today = new Date();
+		var thisDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (6-i));
+		var da = thisDate.getDate();
+		if (da < 10){
+			da = '0' + da;
+		}
+		var mo = thisDate.getMonth() + 1;
+		if (mo < 10){
+			mo = '0' + mo;
+		}
+		newObj.push(mo+'/'+da);	
+	}
+	return newObj;	
+}
+
+function drawChart(itemID) {
+
+	var dailyData = oneWeekDates();
+	var data = [];
+	var dates = oneWeekDateArray();
+	console.log(dates);
+
+	var itemData = returnStats(itemID);
+	console.log('ITEM DATA///');
+	console.log(itemData);
+
+	itemData.map(function(d){
+		mo = d.time.split(' ')[0].split('-')[1];
+		da = d.time.split(' ')[0].split('-')[2];
+		yr = d.time.split(' ')[0].split('-')[0];
+		var thisTS = new Date(mo+'/'+da+'/'+yr).getTime();
+		if (thisTS > lastWeekTS) {
+			dailyData[mo+'/'+da] += 1;
+		}
+	});
+
+	dates.map(function(d){
+		data.push(dailyData[d]);
+	});
+
+	//need to loop thru the obj and push the property to a single array
+	console.log(data);
 
 	var max = d3.max(data);
 
@@ -146,8 +239,7 @@ function drawChart(element) {
 		.domain([0,5])
 		.range([0,'100%']);
 
-
-	var svg = d3.select('.itemStats').append('svg');
+	var svg = d3.select('#'+itemID+' .itemStats').append('svg');
 
 	svg.attr('class','chart');
 
@@ -165,5 +257,5 @@ function drawChart(element) {
 			return yScale(d) + '%';
 		})
 		.attr('width',barWidth)
-		.attr('fill','white');
+		.attr('fill','#3C759D');
 }
