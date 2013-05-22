@@ -187,35 +187,6 @@ function oneWeekDateArray(){
 	return newObj;	
 }
 
-function updateChart(itemID) {
-
-	//update the data array
-	var data = getItemWeeklyData(itemID);
-
-	//update relavent chart dependancies
-	var max = d3.max(data);
-
-	var yScale = d3.scale.linear()
-		.domain([0,max])
-		.range([100,0]);
-
-	var svg = d3.select('#'+itemID+' .chart');
-
-	//bind the new data
-	svg.selectAll("rect")
-   		.data(data); 
-
-   	//draw the chart again
-	svg.selectAll("rect")
-		.data(data)
-		.attr('y',function(d){
-			return 100 - yScale(d) + '%';
-		})
-		.attr('height',function(d){
-			return yScale(d) + '%';
-		});
-}
-
 function getItemWeeklyData(itemID){
 	var dailyData = oneWeekDates();
 	var data = [];
@@ -238,6 +209,37 @@ function getItemWeeklyData(itemID){
 	});
 
 	return data;
+}
+
+function updateChart(itemID) {
+
+	//update the data array
+	var data = getItemWeeklyData(itemID);
+
+	console.log(data);
+
+	//update relavent chart dependancies
+	var max = d3.max(data);
+
+	var yScale = d3.scale.linear()
+		.domain([0,max])
+		.range([0,100]);
+
+	var svg = d3.select('#'+itemID+' .chart');
+
+	//bind the new data
+	svg.selectAll("rect")
+   		.data(data); 
+
+   	//draw the chart again
+	svg.selectAll("rect")
+		.data(data)
+		.attr('y',function(d){
+			return 100 - yScale(d) + '%';
+		})
+		.attr('height',function(d){
+			return yScale(d) + '%';
+		});
 }
 
 function drawChart(itemID) {
@@ -265,17 +267,18 @@ function drawChart(itemID) {
 	console.log(data);
 
 	if(itemID == 'info'){
-		console.log('it is info, not gonna do it');
-		return;
+		//'it is info, not gonna make the chart
+		return false;
 	}
 
 	var max = d3.max(data);
+	if (max < 3) {max = 3;}
 
 	var barWidth = Math.round(100/data.length) + '%';
 
 	var yScale = d3.scale.linear()
 		.domain([0,max])
-		.range([100,0]);
+		.range([0,100]);
 
 	//not sure i need this one
 	var xScale = d3.scale.linear()
