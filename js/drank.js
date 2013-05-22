@@ -2,22 +2,10 @@ $(function(){
 
 	$('#logout').hide();
 
-	
-
-	// $('.drink').click(function(e){
-	// 	e.stopPropagation();
-	// 	logDrink($(this).parent().parent());
-	// });
-
-	// $('.item').click(function(){
-	// 	getStats($(this).attr('id'));
-	// 	showStats($(this));
-	// });
-
 	$('.item').each(function(){
-		var itemID = $(this).attr('id')
-		getStats(itemID);
-		drawChart(itemID);
+		var itemID = $(this).attr('id');
+			getStats(itemID);
+			drawChart(itemID);
 	});
 
 	if(document.location.hash == '#a'){
@@ -45,13 +33,13 @@ $(function(){
 	    	parentDiv.find('.itemStats').removeClass('plusOne');	
 	    }
 		}).on('draginit',function(){
-			console.log('started a drag');
+			//console.log('started a drag');
 		}).on('dragend',function(ev, drag){
 	    	var dist = drag.location[0];
 	    	var rightSwipe = drag.location[0] > 0;
 	    	console.log(dist);
 		    if(Math.abs(dist) > 100){
-		        console.log('threshold past');
+		        //console.log('threshold past');
 		        if(rightSwipe) {
 		            $(this).animate({left:'100%'},500).delay(3000).animate({left:'0%'},500);
 		            logDrink($(this).parent());    
@@ -75,8 +63,9 @@ function logDrink(drink){
 			url: "/drank/add/",
 			data: {'drink': drinkType, 'session': sess}
 		}).done(function(data){
-			console.log(data);
+			//console.log(data);
 			getStats(drinkType);
+			updateChart(drinkType);
 		});
 	}
 }
@@ -116,8 +105,8 @@ function returnStats(drinkType){
 		returnData = data.allData;
 	});
 
-	console.log('RETURN DATA//');
-	console.log(returnData);
+	//console.log('RETURN DATA//');
+	//console.log(returnData);
 
 	return returnData;
 }
@@ -198,16 +187,41 @@ function oneWeekDateArray(){
 	return newObj;	
 }
 
-function drawChart(itemID) {
+function updateChart(itemID) {
 
+	//update the data array
+	var data = getItemWeeklyData(itemID);
+
+	//update relavent chart dependancies
+	var max = d3.max(data);
+
+	var yScale = d3.scale.linear()
+		.domain([0,max])
+		.range([100,0]);
+
+	var svg = d3.select('#'+itemID+' .chart');
+
+	//bind the new data
+	svg.selectAll("rect")
+   		.data(data); 
+
+   	//draw the chart again
+	svg.selectAll("rect")
+		.data(data)
+		.attr('y',function(d){
+			return 100 - yScale(d) + '%';
+		})
+		.attr('height',function(d){
+			return yScale(d) + '%';
+		});
+}
+
+function getItemWeeklyData(itemID){
 	var dailyData = oneWeekDates();
 	var data = [];
 	var dates = oneWeekDateArray();
-	console.log(dates);
 
 	var itemData = returnStats(itemID);
-	console.log('ITEM DATA///');
-	console.log(itemData);
 
 	itemData.map(function(d){
 		mo = d.time.split(' ')[0].split('-')[1];
@@ -223,12 +237,41 @@ function drawChart(itemID) {
 		data.push(dailyData[d]);
 	});
 
+	return data;
+}
+
+function drawChart(itemID) {
+
+	//lets get some colors going on
+
+	var colors = ['#2d4f73','#345c85','#3b6898','#4375aa'];
+	var color = '';
+
+	if(itemID == 'water') {
+		color = colors[0]
+	} else if (itemID == 'coffee') {
+		color = colors[1];
+	} else if (itemID == 'beer') {
+		color = colors[2];
+	} else if (itemID == 'smoothie') {
+		color = colors[3];
+	} else {
+		color = colors[0];
+	}
+
+	var data = getItemWeeklyData(itemID);
+
 	//need to loop thru the obj and push the property to a single array
 	console.log(data);
 
+	if(itemID == 'info'){
+		console.log('it is info, not gonna do it');
+		return;
+	}
+
 	var max = d3.max(data);
 
-	var barWidth = (100/data.length) + '%';
+	var barWidth = Math.round(100/data.length) + '%';
 
 	var yScale = d3.scale.linear()
 		.domain([0,max])
@@ -236,8 +279,8 @@ function drawChart(itemID) {
 
 	//not sure i need this one
 	var xScale = d3.scale.linear()
-		.domain([0,5])
-		.range([0,'100%']);
+		.domain([0,7])
+		.range([0,'98%']);
 
 	var svg = d3.select('#'+itemID+' .itemStats').append('svg');
 
@@ -248,7 +291,8 @@ function drawChart(itemID) {
 		.enter()
 		.append('rect')
 		.attr('x',function(d,i){
-			return xScale(i);
+			//return xScale(i);
+			return i*14 + '%';
 		})
 		.attr('y',function(d){
 			return 100 - yScale(d) + '%';
@@ -257,5 +301,7 @@ function drawChart(itemID) {
 			return yScale(d) + '%';
 		})
 		.attr('width',barWidth)
-		.attr('fill','#3C759D');
+		.attr('fill',color)
+		.attr('stroke',color)
+		.attr('stroke-width','1px');
 }
