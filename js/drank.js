@@ -8,6 +8,8 @@ $(function(){
 			drawChart(itemID);
 	});
 
+	drawStack();
+
 	if(document.location.hash == '#a'){
 		createCookie('s','testing',30);
 		$('#logout').show();	
@@ -37,7 +39,7 @@ $(function(){
 		}).on('dragend',function(ev, drag){
 	    	var dist = drag.location[0];
 	    	var rightSwipe = drag.location[0] > 0;
-	    	console.log(dist);
+	    	//console.log(dist);
 		    if(Math.abs(dist) > 100){
 		        //console.log('threshold past');
 		        if(rightSwipe) {
@@ -94,7 +96,7 @@ function getStats(drinkType){
 
 function returnStats(drinkType){
 	var returnData;
-	console.log(drinkType);
+	//console.log(drinkType);
 	$.ajax({
 		type:'POST',
 		url: "/drank/get/",
@@ -144,18 +146,17 @@ function eraseCookie(name) {
 function addDailyTotals(itemID){
 
 }
-function getLastWeek(){
+function getPriorDate(numDates){
     var today = new Date();
-    var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 6);
-    return lastWeek;
+    var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (numDates));
+    return lastWeek.getTime();
 }
-var lastWeekTS = getLastWeek().getTime();
 
-function oneWeekDates(){
+function datesObj(numDates){
 	var newObj = {};
-	for (var i=0; i<7; i++){
+	for (var i=0; i < numDates; i++){
 		var today = new Date();
-		var thisDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (6-i));
+		var thisDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (numDates - 1 -i));
 		var da = thisDate.getDate();
 		if (da < 10){
 			da = '0' + da;
@@ -169,11 +170,11 @@ function oneWeekDates(){
 	return newObj;
 }
 
-function oneWeekDateArray(){
+function datesArray(numDates){
 	var newObj = [];
-	for (var i=0; i<7; i++){
+	for (var i=0; i<numDates; i++){
 		var today = new Date();
-		var thisDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (6-i));
+		var thisDate = new Date(today.getFullYear(), today.getMonth(), today.getDate() - (numDates - 1 -i));
 		var da = thisDate.getDate();
 		if (da < 10){
 			da = '0' + da;
@@ -187,10 +188,10 @@ function oneWeekDateArray(){
 	return newObj;	
 }
 
-function getItemWeeklyData(itemID){
-	var dailyData = oneWeekDates();
+function getItemData(itemID,days){
+	var dailyData = datesObj(days);
 	var data = [];
-	var dates = oneWeekDateArray();
+	var dates = datesArray(days);
 
 	var itemData = returnStats(itemID);
 
@@ -199,7 +200,7 @@ function getItemWeeklyData(itemID){
 		da = d.time.split(' ')[0].split('-')[2];
 		yr = d.time.split(' ')[0].split('-')[0];
 		var thisTS = new Date(mo+'/'+da+'/'+yr).getTime();
-		if (thisTS > lastWeekTS) {
+		if (thisTS > getPriorDate(days)) {
 			dailyData[mo+'/'+da] += 1;
 		}
 	});
@@ -211,12 +212,12 @@ function getItemWeeklyData(itemID){
 	return data;
 }
 
+var chartDays = 21;
+
 function updateChart(itemID) {
 
 	//update the data array
-	var data = getItemWeeklyData(itemID);
-
-	console.log(data);
+	var data = getItemData(itemID,chartDays);
 
 	//update relavent chart dependancies
 	var max = d3.max(data);
@@ -261,10 +262,9 @@ function drawChart(itemID) {
 		color = colors[0];
 	}
 
-	var data = getItemWeeklyData(itemID);
+	var data = getItemData(itemID,chartDays);
 
 	//need to loop thru the obj and push the property to a single array
-	console.log(data);
 
 	if(itemID == 'info'){
 		//'it is info, not gonna make the chart
@@ -274,7 +274,7 @@ function drawChart(itemID) {
 	var max = d3.max(data);
 	if (max < 3) {max = 3;}
 
-	var barWidth = Math.round(100/data.length) + '%';
+	var barWidth = 100/data.length + '%';
 
 	var yScale = d3.scale.linear()
 		.domain([0,max])
@@ -282,8 +282,8 @@ function drawChart(itemID) {
 
 	//not sure i need this one
 	var xScale = d3.scale.linear()
-		.domain([0,7])
-		.range([0,'98%']);
+		.domain([0,data.length])
+		.range([0,'100%']);
 
 	var svg = d3.select('#'+itemID+' .itemStats').append('svg');
 
@@ -294,8 +294,8 @@ function drawChart(itemID) {
 		.enter()
 		.append('rect')
 		.attr('x',function(d,i){
-			//return xScale(i);
-			return i*14 + '%';
+			return xScale(i);
+			//return i*14 + '%';
 		})
 		.attr('y',function(d){
 			return 100 - yScale(d) + '%';
@@ -307,4 +307,103 @@ function drawChart(itemID) {
 		.attr('fill',color)
 		.attr('stroke',color)
 		.attr('stroke-width','1px');
+}
+
+function drawStack() {
+
+	var colors = ['#2d4f73','#345c85','#3b6898','#4375aa'];
+
+	//combine all the datas into one major object.
+	var data = [];
+	var datas = [];
+
+	var drinks = [];
+	$('.drink').parent().parent().each(function(){
+		drinks.push($(this).attr('id'));
+	});
+	drinks = drinks.reverse();
+
+	var dates = datesArray(chartDays);
+
+	for (var j = 0; j< drinks.length; j++){
+		var thisData = getItemData(drinks[j],chartDays);
+		
+		datas.push(thisData);
+	}
+
+	for (var i = 0; i < dates.length; i++){
+		var newObj = {};
+		newObj.date = dates[i];
+
+		var offset = 0;
+
+		for (var k = 0; k < drinks.length; k++){
+			var thisDrink = drinks[k];
+			newObj[thisDrink] = {};
+			newObj[thisDrink].y = datas[k][i];
+			newObj[thisDrink].y0 = offset;
+			offset += datas[k][i];
+		}
+
+		data.push(newObj);
+	}
+
+	var totals = [];
+
+	for (var i = 0; i < data.length; i++){
+		var total = 0;
+
+		for (var k = 0; k < drinks.length; k++){
+			var thisDrink = drinks[k];
+			total += data[i][thisDrink].y;
+
+		}
+
+		totals.push(total);
+	}
+
+	var max = d3.max(totals);
+
+	var svg = d3.select('#info .itemStats').append('svg');
+
+	svg.attr('class','chart');
+
+	var barWidth = 100/data.length + '%';
+
+	var yScale = d3.scale.linear()
+		.domain([0,max])
+		.range([0,100]);
+
+	var xScale = d3.scale.linear()
+		.domain([0,data.length])
+		.range([0,'100%']);
+
+	for (var seriesCount = 0; seriesCount < drinks.length; seriesCount++){
+
+	var relevantData = drinks[seriesCount];
+
+	svg.selectAll('.series'+relevantData)
+		.data(data)
+		.enter()
+		.append('rect')
+		.attr('x',function(d,i){
+			return xScale(i);
+		})
+		.attr('y',function(d){
+			var y = d[relevantData].y;
+			var offset = d[relevantData].y0;
+			console.log(y);
+			console.log(offset);
+			return 100 - yScale(y) - yScale(offset) + '%';
+		})
+		.attr('height',function(d){
+			var y = d[relevantData].y;
+			return yScale(y) + '%';
+		})
+		.attr('width',barWidth)
+		.attr('fill',colors[seriesCount])
+		.attr('stroke',colors[seriesCount])
+		.attr('stroke-width','1px');	
+	}
+
 }

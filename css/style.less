@@ -32,7 +32,7 @@ html, body {
 
 .item {
 	position: relative;
-	height: 20.1%;
+	height: 20%;
 	width: 100%;
 	overflow: hidden;
 }
@@ -64,9 +64,17 @@ html, body {
 		fill: @lighter3;
 	    height: 50%;
 	    width: 50%;
-	    top: 25%;
+	    bottom: 25%;
 	    left: 25%;
 	    position: absolute;
+	}
+
+	svg.chart{
+		position: absolute;
+		width: 100%;
+		height: 30%;
+		bottom: -1px;
+		left: 0;	
 	}
 	svg:hover {
 		fill: @lighter2;
@@ -96,10 +104,10 @@ svg.drink:hover {
 
 svg.chart {
 	position: absolute;
-	width: 20%;
+	width: 100%;
 	height: 30%;
-	top: 70%;
-	left: 40%;
+	bottom: -1px;
+	left: 0;
 }
 
 .svgWrap {
