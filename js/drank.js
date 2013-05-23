@@ -213,6 +213,7 @@ function getItemData(itemID,days){
 }
 
 var chartDays = 21;
+var white = '#f6f7f7';
 
 function updateChart(itemID) {
 
@@ -241,6 +242,9 @@ function updateChart(itemID) {
 		.attr('height',function(d){
 			return yScale(d) + '%';
 		});
+
+	//while we are at it, lets update the stacked chart too.
+	drawStack();
 }
 
 function drawChart(itemID) {
@@ -272,7 +276,7 @@ function drawChart(itemID) {
 	}
 
 	var max = d3.max(data);
-	if (max < 3) {max = 3;}
+	//if (max < 3) {max = 3;}
 
 	var barWidth = 100/data.length + '%';
 
@@ -287,7 +291,8 @@ function drawChart(itemID) {
 
 	var svg = d3.select('#'+itemID+' .itemStats').append('svg');
 
-	svg.attr('class','chart');
+	svg.attr('class','chart')
+		.attr('shape-rendering','crispEdges');;
 
 	svg.selectAll('rect')
 		.data(data)
@@ -295,7 +300,6 @@ function drawChart(itemID) {
 		.append('rect')
 		.attr('x',function(d,i){
 			return xScale(i);
-			//return i*14 + '%';
 		})
 		.attr('y',function(d){
 			return 100 - yScale(d) + '%';
@@ -306,12 +310,66 @@ function drawChart(itemID) {
 		.attr('width',barWidth)
 		.attr('fill',color)
 		.attr('stroke',color)
-		.attr('stroke-width','1px');
+		.attr('stroke-width','0px');
+
+	//var found = false; //for only doing one max
+
+	var maxPosition = data.indexOf(max); //index of first max
+
+	svg.selectAll('text')
+		.data(data)
+		.enter()
+		.append('text')
+		.text(max)
+		.attr('text-anchor','middle')
+		.attr('x', function(){
+			return parseFloat(xScale(maxPosition).split('%')[0]) + parseFloat(barWidth.split('%')[0])/2 + '%';
+		})
+		.attr('y', function(d){
+			return 50 + '%';
+		})
+		.attr('dy',function(){
+			return '.5em';
+		})
+		.attr('fill',function(d,i){
+			if(i==0){
+				return white;
+			} else {
+				return 'transparent';
+			}
+		});
+
+	// svg.selectAll('text')
+	// 	.data(data)
+	// 	.enter()
+	// 	.append('text')
+	// 	.text(function(d){
+	// 		return d;
+	// 	})
+	// 	.attr("text-anchor", "middle")
+	// 	.attr('x', function(d,i){
+	// 		return parseFloat(xScale(i).split('%')[0]) + parseFloat(barWidth.split('%')[0])/2 + '%';
+	// 	})
+	// 	// .attr('dx',function(){
+	// 	// 	return parseInt(barWidth.split('%')[0]) / 2 + '%';
+	// 	// })
+	// 	.attr('y', function(d){
+	// 		return 85 + '%';
+	// 	})
+	// 	.attr('fill',function(d){
+	// 		if(d == max && found == false){
+	// 			return white;
+	// 			found = true;
+	// 		} else {
+	// 			return 'transparent';
+	// 		}
+	// 	});
 }
 
 function drawStack() {
 
 	var colors = ['#2d4f73','#345c85','#3b6898','#4375aa'];
+	var colors = [d3.rgb(colors[0]).brighter(0).toString(),d3.rgb(colors[1]).brighter(.2).toString(),d3.rgb(colors[2]).brighter(.4).toString(),d3.rgb(colors[3]).brighter(.6).toString()];
 
 	//combine all the datas into one major object.
 	var data = [];
@@ -366,7 +424,8 @@ function drawStack() {
 
 	var svg = d3.select('#info .itemStats').append('svg');
 
-	svg.attr('class','chart');
+	svg.attr('class','chart')
+		.attr('shape-rendering','crispEdges');
 
 	var barWidth = 100/data.length + '%';
 
@@ -392,8 +451,8 @@ function drawStack() {
 		.attr('y',function(d){
 			var y = d[relevantData].y;
 			var offset = d[relevantData].y0;
-			console.log(y);
-			console.log(offset);
+			//console.log(y);
+			//console.log(offset);
 			return 100 - yScale(y) - yScale(offset) + '%';
 		})
 		.attr('height',function(d){
@@ -403,7 +462,7 @@ function drawStack() {
 		.attr('width',barWidth)
 		.attr('fill',colors[seriesCount])
 		.attr('stroke',colors[seriesCount])
-		.attr('stroke-width','1px');	
+		.attr('stroke-width','0px');	
 	}
 
 }
